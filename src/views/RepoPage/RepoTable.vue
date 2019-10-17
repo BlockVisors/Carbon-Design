@@ -1,12 +1,27 @@
 <template>
-  <cv-data-table :columns="columns" :title="title" :helper-text="helperText">
+ <cv-data-table-skeleton
+  v-if="loading"
+  :columns="columns"
+  :title="title"
+  :helper-text="helperText"
+  :rows="10"
+/>
+ <cv-data-table
+    v-else
+    :columns="columns"
+    :title="title"
+    :helper-text="helperText"
+    :pagination="{ numberOfItems: this.totalRows }"
+    @pagination="$emit('pagination', $event)"
+>
       <template slot="data">
         <cv-data-table-row v-for="(row, rowIndex) in data" :key="`${rowIndex}`"> 
-           <cv-data-table-cell
-            v-for="(cell, cellIndex) in row.data"
-            :key="`${cellIndex}`"
-            >{{cell}}</cv-data-table-cell
-            > 
+           <cv-data-table-cell v-for="(cell, cellIndex) in row.data" :key="`${cellIndex}`">
+            <template v-if="!cell.url">
+                {{cell}}
+            </template>
+            <link-list v-else :url="cell.url" :homepage-url="cell.homepageUrl" />
+            </cv-data-table-cell>
             <template slot="expandedContent">
             {{ row.description }}
             </template>
@@ -17,71 +32,21 @@
 
 
 <script>
-import RepoTable from "./RepoTable";
+// import RepoTable from "./RepoTable";
+import LinkList from "./LinkList";
 
-const headers = [
-  {
-    key: 'name',
-    header: 'Name',
-  },
-  {
-    key: 'createdAt',
-    header: 'Created',
-  },
-  {
-    key: 'updatedAt',
-    header: 'Updated',
-  },
-  {
-    key: 'issueCount',
-    header: 'Open Issues',
-  },
-  {
-    key: 'stars',
-    header: 'Stars',
-  },
-  {
-    key: 'links',
-    header: 'Links',
-  },
-];
-const rows = [
-  {
-    id: '1',
-    name: 'Repo 1',
-    createdAt: 'Date',
-    updatedAt: 'Date',
-    issueCount: '123',
-    stars: '456',
-    links: 'Links',
-  },
-  {
-    id: '2',
-    name: 'Repo 2',
-    createdAt: 'Date',
-    updatedAt: 'Date',
-    issueCount: '123',
-    stars: '456',
-    links: 'Links',
-  },
-  {
-    id: '3',
-    name: 'Repo 3',
-    createdAt: 'Date',
-    updatedAt: 'Date',
-    issueCount: '123',
-    stars: '456',
-    links: 'Links',
-  },
-];
+
 
 export default {
     name: 'RepoTable',
+    components: { LinkList },
     props: {
       headers: Array,
       rows: Array,
       title: String,
       helperText: String,
+      loading: Boolean,
+      totalRows: Number,
     },
     computed: {
       columns() {
@@ -97,9 +62,12 @@ export default {
             row.stars,
             row.links,
           ],
-          description: 'Row description',
+            description: row.description,
+            key: row.key
         }));
       },
     },
   };
 </script>
+
+<style lang="scss"></style>

@@ -1,6 +1,8 @@
 @mixin landing-page-background() {
     background-color: $ui-01;
     position: relative;
+
+    
     &::before {
       content: '';
       position: absolute;
